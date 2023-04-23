@@ -1,0 +1,13 @@
+/dts-v1/;
+/plugin/;
+
+/ {
+	model = "WND";
+	qcom,board-id = <0x1000b 0x05>;
+	oem,hw-id = <0x00 0x00 0x00>;
+};
+
+&lk2nd {
+	model = "Nokia 2780 Flip";
+	compatible = "nokia,weeknd";
+};

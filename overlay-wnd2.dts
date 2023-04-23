@@ -1,0 +1,13 @@
+/dts-v1/;
+/plugin/;
+
+/ {
+	model = "WND 2";
+	qcom,board-id = <0x1000b 0x05>;
+	oem,hw-id = <0x100 0x00 0x00>;
+};
+
+&lk2nd {
+	model = "Nokia 2760 Flip (WND 2)";
+	compatible = "nokia,weeknd2", "nokia,weeknd";
+};

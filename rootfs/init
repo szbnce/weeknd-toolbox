@@ -1,0 +1,211 @@
+#!/sbin/sh
+
+clear
+
+mkdir -p /config /dev /sys
+mount -t configfs configfs /config
+mount -t devtmpfs devtmpfs /dev
+mount -t sysfs sysfs /sys
+
+backarrow="←"
+back=""
+esc=""
+green="${esc}[32m"
+cyan="${esc}[36m"
+red="${esc}[31m"
+bold="${esc}[1m"
+normal="${esc}[m"
+
+pager() {
+	local scroll width height
+	scroll=0
+	eval "$(resize)"
+	width=$COLUMNS
+	height=$((LINES-2))
+	half=$((height/2))
+	"$@" | fold -w $width | tail +$scroll | head -$height
+	echo -n "${cyan}2:up/8:down/${backarrow}:exit${normal}"
+	while read -s -n 1 key; do
+		case "$key" in
+			2)
+				if [ $scroll -ge $half ]; then
+					scroll=$((scroll - half))
+				fi
+				;;
+			8)
+				scroll=$((scroll + half))
+				;;
+			$back)
+				break
+				;;
+			*)
+				continue
+				;;
+		esac
+		clear
+		"$@" | fold -w $width | tail +$scroll | head -$height
+		echo -n "${cyan}$scroll${normal}"
+	done
+	clear
+}
+
+find_blk() {
+	if [ -n "$1" ]; then
+		cd /sys/class/block
+		for blk in *; do
+			if grep -qxF "PARTNAME=$1" "$blk/uevent"; then
+				echo "/dev/$blk"
+				return 0
+			fi
+		done
+		echo "${red}${bold}Failed to find partition '$1'${normal}" >&2
+	fi
+	echo "Enter path:" >&2
+	echo -n "/dev/mmcblk0p" >&2
+	read partnum <&2
+	echo "/dev/mmcblk0p$partnum"
+	return 1
+}
+
+init_usb() {
+	ln -s /config/usb_gadget /usb
+	mkdir /usb/g1
+	echo 0x05C6 > /usb/g1/idVendor
+	echo 0x9092 > /usb/g1/idProduct
+
+	mkdir /usb/g1/strings/0x409
+	echo "Nokia" > /usb/g1/strings/0x409/manufacturer
+	echo "weeknd-toolbox" > /usb/g1/strings/0x409/serialnumber
+	echo "Weeknd Hacking Toolbox" > /usb/g1/strings/0x409/product
+
+	mkdir /usb/g1/functions/mass_storage.0
+	echo 1 > /usb/g1/functions/mass_storage.0/lun.0/removable
+
+	mkdir /usb/g1/configs/c.1
+	mkdir /usb/g1/configs/c.1/strings/0x409
+	echo "USB Mass Storage" > /usb/g1/configs/c.1/strings/0x409/configuration
+
+	ln -s /usb/g1/functions/mass_storage.0 /usb/g1/configs/c.1/f1
+
+	echo "$(ls /sys/class/udc)" > /usb/g1/UDC
+}
+
+usb_eject_mass_storage() {
+	echo 1 > /usb/g1/functions/mass_storage.0/lun.0/forced_eject
+}
+
+usb_config_mass_storage() {
+	echo "$1" > /usb/g1/functions/mass_storage.0/lun.0/file
+}
+
+usb_check_mass_storage() {
+	ums_file=$(cat /usb/g1/functions/mass_storage.0/lun.0/file)
+	if [ -n "$ums_file" ]; then
+		echo "USB storage on: $ums_file"
+	else
+		echo "USB storage off"
+	fi
+}
+
+mass_storage_menu() {
+	usb_check_mass_storage
+	echo "== ${green}NOKIA  WEEKND${normal} =="
+	echo "=== ${red}USB STORAGE${normal} ==="
+	echo "===================${bold}"
+	if [ -n "$ums_file" ]; then
+		echo "${red}0. Force-eject${normal}${bold}"
+	fi
+	echo "1. Disabled"
+	echo "2. 'system' (ext4)"
+	echo "3. 'userdata' (f2fs)"
+	echo "4. Other..."
+	echo "${red}5. Whole eMMC${normal}${bold}"
+	if [ -e /dev/mmcblk1 ]; then
+		echo "6. SD card"
+	fi
+	echo "${green}${backarrow}  Exit"
+	echo "${normal}==================="
+	echo -n "Your choice: "
+}
+
+mass_storage() {
+	clear
+	mass_storage_menu
+	while true; do
+		key=
+		read -s -n 1 ${ums_file:+-t 5} key
+		clear
+		case "$key" in
+			0)
+				if [ -n "$ums_file" ]; then
+					usb_eject_mass_storage
+				fi
+				;;
+			1)
+				usb_config_mass_storage ""
+				;;
+			2)
+				usb_config_mass_storage "$(find_blk system)"
+				;;
+			3)
+				usb_config_mass_storage "$(find_blk userdata)"
+				;;
+			4)
+				usb_config_mass_storage "$(find_blk)"
+				;;
+			5)
+				usb_config_mass_storage /dev/mmcblk0
+				;;
+			6)
+				usb_config_mass_storage /dev/mmcblk1
+				;;
+			$back)
+				break
+				;;
+		esac
+		mass_storage_menu
+	done
+}
+
+menu() {
+	usb_check_mass_storage
+	echo "== ${green}NOKIA  WEEKND${normal} =="
+	echo "= ${cyan}HACKING TOOLBOX${normal} ="
+	echo "===================${bold}"
+	if [ -n "$ums_file" ]; then
+		echo "${green}2. USB storage...${normal}${bold}"
+	else
+		echo "1. Power off"
+		echo "2. USB storage..."
+	fi
+	echo "3. View kernel logs"
+	echo "${normal}==================="
+	echo -n "Your choice: "
+}
+
+init_usb
+clear
+menu
+
+while true; do
+	key=
+	read -s -n 1 ${ums_file:+-t 5} key
+	clear
+	case "$key" in
+		1)
+			usb_check_mass_storage
+			if [ -n "$ums_file" ]; then
+				echo "${red}${bold}Please turn it off first!${normal}"
+			else
+				poweroff -f
+			fi
+			;;
+		2)
+			mass_storage
+			;;
+		3)
+			pager dmesg
+			;;
+	esac
+	menu
+done

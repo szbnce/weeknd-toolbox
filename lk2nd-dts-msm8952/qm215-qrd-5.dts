@@ -1,0 +1,16 @@
+// SPDX-License-Identifier: GPL-2.0-only
+
+/dts-v1/;
+
+#include <skeleton64.dtsi>
+#include <lk2nd.dtsi>
+
+
+/ {
+	qcom,msm-id = <QCOM_ID_QM215 0>;
+	qcom,board-id = <QCOM_BOARD_ID(QRD, 1, 0) 5>;
+
+	__symbols__ {
+		lk2nd = &lk2nd;
+	};
+};
