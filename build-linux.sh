@@ -1,4 +1,6 @@
 #!/bin/sh
+# Author: Affe Null
+# SPDX-License-Identifier: MIT
 set -e
 
 repo="https://github.com/affenull2345/linux"

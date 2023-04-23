@@ -1,4 +1,6 @@
 #!/bin/sh
+# Author: Affe Null
+# SPDX-License-Identifier: MIT
 
 cd "$(dirname "$0")"
 
