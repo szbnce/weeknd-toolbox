@@ -119,11 +119,12 @@ mass_storage_menu() {
 	fi
 	echo "1. Disabled"
 	echo "2. 'system' (ext4)"
-	echo "3. 'userdata' (f2fs)"
-	echo "4. Other..."
-	echo "${red}5. Whole eMMC${normal}${bold}"
+	echo "3. 'vendor' (ext4)"
+	echo "4. 'userdata' (f2fs)"
+	echo "5. Other..."
+	echo "${red}6. Whole eMMC${normal}${bold}"
 	if [ -e /dev/mmcblk1 ]; then
-		echo "6. SD card"
+		echo "7. SD card"
 	fi
 	echo "${green}${backarrow}  Exit"
 	echo "${normal}==================="
@@ -150,15 +151,18 @@ mass_storage() {
 				usb_config_mass_storage "$(find_blk system)"
 				;;
 			3)
-				usb_config_mass_storage "$(find_blk userdata)"
+				usb_config_mass_storage "$(find_blk vendor)"
 				;;
 			4)
-				usb_config_mass_storage "$(find_blk)"
+				usb_config_mass_storage "$(find_blk userdata)"
 				;;
 			5)
-				usb_config_mass_storage /dev/mmcblk0
+				usb_config_mass_storage "$(find_blk)"
 				;;
 			6)
+				usb_config_mass_storage /dev/mmcblk0
+				;;
+			7)
 				usb_config_mass_storage /dev/mmcblk1
 				;;
 			$back)
