@@ -29,6 +29,45 @@ To boot the hacking toolbox, hold the volume-up key while turning on the
 phone, then release it when the "custom operating system" warning appears, and
 start holding the key again as soon as the warning disappears.
 
+# Sideloading guide
+
+### Preparation (only once)
+- Perform the above steps to build and flash the toolkit
+- Select "Disable encryption" and follow the on-screen instructions
+
+### Sideloading apps
+
+```sh
+# Boot the hacking toolbox
+# Select "USB storage" -> "userdata"
+# Mount the exposed storage device on a Linux machine
+# You might have to execute these commands as root to avoid permission errors
+cd /path/to/userdata/
+
+# If you have installed the app in the KaiOS simulator:
+cp -r /path/to/kaiosrt/gaia/profile/webapps/installed/<app-name>` local/webapps/installed
+# Otherwise:
+mkdir local/webapps/installed/<app-name>
+cp /path/to/application.zip local/webapps/installed/<app-name>/
+
+# Symlink the application directory
+ln -s /data/local/webapps/installed/<app-name> local/webapps/vroot/<app-name>`
+
+# Ensure that the SELinux contexts are correct
+setfattr -n security.selinux -v u:object_r:system_data_file:s0 local/webapps/installed/<app-name>
+setfattr -n security.selinux -v u:object_r:system_data_file:s0 local/webapps/installed/<app-name>/application.zip
+setfattr -h -n security.selinux -v u:object_r:system_data_file:s0 local/webapps/vroot/<app-name>
+
+# Open the database:
+sqlite3 local/webapps/db/apps.sqlite`
+
+# sqlite> INSERT INTO apps VALUES ("<app-name>", "<version>", 1, "http://<app-name>.localhost/manifest.webmanifest", "", "", 0, "Enabled", "Installed", "Idle", 0, 0, "", "", "");
+# sqlite> .exit
+
+# Eject the storage device
+# Power off and power on
+```
+
 # Known issues
 
 - The font is ugly. Workaround: remove `fbcon=font:10x18` from cmdline
