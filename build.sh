@@ -97,6 +97,8 @@ python3 mkbootimg.py -o lk2nd.img \
 	--header_version 1 \
 	--recovery_dtbo dtbo.img
 
+dd if=boot.img of=lk2nd.img seek=512 bs=1024
+
 step vbmeta image
 
 if needs stock_vbmeta.img; then

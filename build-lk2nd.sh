@@ -12,4 +12,4 @@ fi
 cd lk2nd
 rm -rf lk2nd/device/dts/msm8952
 ln -s ../../../../lk2nd-dts-msm8952 lk2nd/device/dts/msm8952
-make lk2nd-msm8952
+make lk2nd-msm8952 LK2ND_PARTITION_BASE=recovery

@@ -22,5 +22,9 @@ to use for building the Linux kernel.
 
 ### Booting
 After building, you can run `./flash.sh` to boot the hacking toolbox.
-This script permanently modifies the recovery partition (by installing lk2nd to it),
-but you have to run it every time you want to boot the hacking toolbox.
+This script permanently modifies the recovery partition by installing lk2nd
+to it.
+
+To boot the hacking toolbox, hold the volume-up key while turning on the
+phone, then release it when the "custom operating system" warning appears, and
+start holding the key again as soon as the warning disappears.

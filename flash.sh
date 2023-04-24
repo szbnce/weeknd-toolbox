@@ -25,6 +25,6 @@ sleep 5
 fastboot reboot
 sleep 3
 echo
-echo '[*] You may now release the volume-up key.'
+echo '[!] Please release the volume-up key now'
+echo '[!] Please start holding it again after the "custom operating system" screen disappears'
 echo
-fastboot boot boot.img
