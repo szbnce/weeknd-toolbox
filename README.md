@@ -45,13 +45,13 @@ start holding the key again as soon as the warning disappears.
 cd /path/to/userdata/
 
 # If you have installed the app in the KaiOS simulator:
-cp -r /path/to/kaiosrt/gaia/profile/webapps/installed/<app-name>` local/webapps/installed
+cp -r /path/to/kaiosrt/gaia/profile/webapps/installed/<app-name> local/webapps/installed
 # Otherwise:
 mkdir local/webapps/installed/<app-name>
 cp /path/to/application.zip local/webapps/installed/<app-name>/
 
 # Symlink the application directory
-ln -s /data/local/webapps/installed/<app-name> local/webapps/vroot/<app-name>`
+ln -s /data/local/webapps/installed/<app-name> local/webapps/vroot/<app-name>
 
 # Ensure that the SELinux contexts are correct
 setfattr -n security.selinux -v u:object_r:system_data_file:s0 local/webapps/installed/<app-name>
@@ -59,10 +59,16 @@ setfattr -n security.selinux -v u:object_r:system_data_file:s0 local/webapps/ins
 setfattr -h -n security.selinux -v u:object_r:system_data_file:s0 local/webapps/vroot/<app-name>
 
 # Open the database:
-sqlite3 local/webapps/db/apps.sqlite`
+sqlite3 local/webapps/db/apps.sqlite
 
-# sqlite> INSERT INTO apps VALUES ("<app-name>", "<version>", 1, "http://<app-name>.localhost/manifest.webmanifest", "", "", 0, "Enabled", "Installed", "Idle", 0, 0, "", "", "");
-# sqlite> .exit
+sqlite> INSERT INTO apps VALUES ("<app-name>", "<version>", 1,
+                                 "http://<app-name>.localhost/manifest.webmanifest",
+                                 "", "", 0,
+                                 "Enabled",
+                                 "Installed",
+                                 "Idle",
+                                 0, 0, "", "", "");
+sqlite> .exit
 
 # Eject the storage device
 # Power off and power on
