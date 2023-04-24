@@ -47,7 +47,9 @@ for cmd in \
 	mkdir \
 	ln \
 	cat \
+	dd \
 	grep \
+	sed \
 	clear \
 	resize \
 	fold \

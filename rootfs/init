@@ -109,22 +109,32 @@ usb_check_mass_storage() {
 	fi
 }
 
+ensure_ums_off() {
+	usb_check_mass_storage
+	if [ -n "$ums_file" ]; then
+		echo "${red}${bold}Please turn off USB storage!${normal}"
+		return 1
+	else
+		return 0
+	fi
+}
+
 mass_storage_menu() {
 	usb_check_mass_storage
 	echo "== ${green}NOKIA  WEEKND${normal} =="
 	echo "=== ${red}USB STORAGE${normal} ==="
 	echo "===================${bold}"
 	if [ -n "$ums_file" ]; then
-		echo "${red}0. Force-eject${normal}${bold}"
-	fi
-	echo "1. Disabled"
-	echo "2. 'system' (ext4)"
-	echo "3. 'vendor' (ext4)"
-	echo "4. 'userdata' (f2fs)"
-	echo "5. Other..."
-	echo "${red}6. Whole eMMC${normal}${bold}"
-	if [ -e /dev/mmcblk1 ]; then
-		echo "7. SD card"
+		echo "${red}0. Force disconnect"
+	else
+		echo "1. 'system' (ext4)"
+		echo "2. 'vendor' (ext4)"
+		echo "3. 'userdata' (f2fs)"
+		echo "4. Other..."
+		echo "${red}5. Whole eMMC${normal}${bold}"
+		if [ -e /dev/mmcblk1 ]; then
+			echo "6. SD card"
+		fi
 	fi
 	echo "${green}${backarrow}  Exit"
 	echo "${normal}==================="
@@ -145,24 +155,21 @@ mass_storage() {
 				fi
 				;;
 			1)
-				usb_config_mass_storage ""
-				;;
-			2)
 				usb_config_mass_storage "$(find_blk system)"
 				;;
-			3)
+			2)
 				usb_config_mass_storage "$(find_blk vendor)"
 				;;
-			4)
+			3)
 				usb_config_mass_storage "$(find_blk userdata)"
 				;;
-			5)
+			4)
 				usb_config_mass_storage "$(find_blk)"
 				;;
-			6)
+			5)
 				usb_config_mass_storage /dev/mmcblk0
 				;;
-			7)
+			6)
 				usb_config_mass_storage /dev/mmcblk1
 				;;
 			$back)
@@ -171,6 +178,30 @@ mass_storage() {
 		esac
 		mass_storage_menu
 	done
+}
+
+really_disable_fscrypt() {
+	echo "Patching fstab..."
+	mkdir -p /vendor
+	mount -t ext4 "$(find_blk vendor)" /vendor || return 1
+	sed -i 's/fileencryption=ice,//' /vendor/etc/fstab.qcom
+	umount /vendor
+	echo "Corrupting userdata..."
+	dd if=/dev/zero of="$(find_blk userdata)" bs=2048 count=4096
+	reboot -f
+}
+
+disable_fscrypt() {
+	echo "${red}${bold}ALL YOUR DATA WILL BE ERASED!${normal}"
+	echo "The device will reboot."
+	echo "Type '37273' and press Enter to continue."
+	echo "Type anything else to cancel."
+	read key
+	if [ "$key" = "37273" ]; then
+		really_disable_fscrypt
+	else
+		clear
+	fi
 }
 
 menu() {
@@ -183,8 +214,9 @@ menu() {
 	else
 		echo "1. Power off"
 		echo "2. USB storage..."
+		echo "3. Disable encryption"
 	fi
-	echo "3. View kernel logs"
+	echo "4. View kernel logs"
 	echo "${normal}==================="
 	echo -n "Your choice: "
 }
@@ -199,17 +231,15 @@ while true; do
 	clear
 	case "$key" in
 		1)
-			usb_check_mass_storage
-			if [ -n "$ums_file" ]; then
-				echo "${red}${bold}Please turn it off first!${normal}"
-			else
-				poweroff -f
-			fi
+			ensure_ums_off && poweroff -f
 			;;
 		2)
 			mass_storage
 			;;
 		3)
+			ensure_ums_off && disable_fscrypt
+			;;
+		4)
 			pager dmesg
 			;;
 	esac
