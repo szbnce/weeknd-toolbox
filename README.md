@@ -28,3 +28,9 @@ to it.
 To boot the hacking toolbox, hold the volume-up key while turning on the
 phone, then release it when the "custom operating system" warning appears, and
 start holding the key again as soon as the warning disappears.
+
+# Known issues
+
+- The `userdata` partition is unreadable due to encryption
+- The font is ugly. Workaround: remove `fbcon=font:10x18` from cmdline
+  in `build.sh`
