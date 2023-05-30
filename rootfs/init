@@ -193,6 +193,7 @@ really_disable_fscrypt() {
 
 disable_fscrypt() {
 	echo "${red}${bold}ALL YOUR DATA WILL BE ERASED!${normal}"
+	echo "Please back up the vendor partition before doing this."
 	echo "The device will reboot."
 	echo "Type '37273' and press Enter to continue."
 	echo "Type anything else to cancel."

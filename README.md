@@ -34,6 +34,9 @@ start holding the key again as soon as the warning disappears.
 ### Preparation (only once)
 - Perform the above steps to build and flash the toolkit
 - Select "Disable encryption" and follow the on-screen instructions
+- **WARNING**: Disabling encryption modifies the vendor partition. Please
+  make a backup first using `dd` after exposing it via USB **without**
+  mounting it.
 
 ### Sideloading apps
 
