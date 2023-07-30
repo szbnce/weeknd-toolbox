@@ -38,14 +38,54 @@ start holding the key again as soon as the warning disappears.
   make a backup first using `dd` after exposing it via USB **without**
   mounting it.
 
-### Sideloading apps
+### Getting adb to work
+
+**NOTE**: This won't give you root access, and further steps may be needed to enable devtools.
 
 ```sh
 # Boot the hacking toolbox
 # Select "USB storage" -> "userdata"
 # Mount the exposed storage device on a Linux machine
 # You might have to execute these commands as root to avoid permission errors
-cd /path/to/userdata/
+cd /path/to/mounted/userdata/
+
+# If you don't have ~/.android/adbkey.pub
+adb keygen ~/.android/adbkey
+
+# Copy the key
+cat ~/.android/adbkey.pub >> misc/adb/adb_keys
+
+# Add SELinux metadata
+setfattr -n security.selinux -v u:object_r:system_data_file:s0 misc/adb/adb_keys
+
+# Unmount the storage device
+# Select "USB storage" -> "system"
+# Mount the exposed storage device
+cd /path/to/mounted/system/
+
+# edit init.usb.configfs.rc
+# change the on property:sys.usb.config=mtp part to look like this:
+on property:sys.usb.config=mtp && property:sys.usb.configfs=1
+    start adbd
+
+on property:sys.usb.ffs.ready=1 && property:sys.usb.config=mtp && property:sys.usb.configfs=1
+    write /config/usb_gadget/g1/configs/b.1/strings/0x409/configuration "mtp_adb"
+    symlink /config/usb_gadget/g1/functions/mtp.gs0 /config/usb_gadget/g1/configs/b.1/f1   
+    symlink /config/usb_gadget/g1/functions/ffs.adb /config/usb_gadget/g1/configs/b.1/f2
+    write /config/usb_gadget/g1/UDC ${sys.usb.controller}
+    setprop sys.usb.state ${sys.usb.config}
+
+# unmount and reboot, make sure USB storage is enabled
+```
+
+### Sideloading apps (the hard way)
+
+```sh
+# Boot the hacking toolbox
+# Select "USB storage" -> "userdata"
+# Mount the exposed storage device on a Linux machine
+# You might have to execute these commands as root to avoid permission errors
+cd /path/to/mounted/userdata/
 
 # If you have installed the app in the KaiOS simulator:
 cp -r /path/to/kaiosrt/gaia/profile/webapps/installed/<app-name> local/webapps/installed
