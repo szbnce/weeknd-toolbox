@@ -6,7 +6,7 @@ set -e
 repo="https://github.com/msm8916-mainline/lk2nd"
 
 if [ ! -d lk2nd ]; then
-	git clone --depth 1 -b experimental-tmp2 "$repo" lk2nd
+	git clone --depth 1 -b experimental-tmp3 "$repo" lk2nd
 fi
 
 cd lk2nd
