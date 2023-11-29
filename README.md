@@ -1,7 +1,8 @@
 # Nokia 2780 hacking toolbox
 
 This small Linux system replaces the stock "recovery" system and lets you expose
-the internal storage of a Nokia 2780 (and maybe also 2760) Flip via USB.
+the internal storage of a Nokia 2780 Flip via USB. It is reported not to work on
+the Nokia 2760 Flip due to the lack of a `fastboot oem sudo` command.
 
 It uses [lk2nd](https://github.com/msm8916-mainline/lk2nd) and a
 close-to-mainline kernel:
