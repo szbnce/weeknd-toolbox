@@ -122,3 +122,9 @@ sqlite> .exit
 
 - The font is ugly. Workaround: remove `fbcon=font:10x18` from cmdline
   in `build.sh`
+
+# Credits
+- Affe Null - Whole weeknd-toolbox and making it work correctly
+- Bence Szabó (szbnce) - Modifying the hash algorithm, adding working stock vbmeta image, changing lk2nd to debug and debug to framebuffer (show on screen)
+- lk2nd team
+- Everyone who contributed to the creation of Linux, lk2nd and weeknd-toolbox

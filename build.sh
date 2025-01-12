@@ -103,21 +103,16 @@ dd if=boot.img of=lk2nd.img seek=512 bs=1024
 
 step vbmeta image
 
-if needs stock_vbmeta.img; then
-	wget -Ostock_vbmeta.img https://storage.abscue.de/private/zImage/wnd-vbmeta.img
-fi
-
 if needs vbmeta.img; then
-	openssl genrsa 2048 > key.pem
+	openssl genrsa 4096 > key.pem
 	python3 avbtool.py extract_public_key --key key.pem --output pkmd.bin
 	python3 avbtool.py make_vbmeta_image \
 		--padding_size 4096 \
-		--algorithm SHA512_RSA2048 \
+		--algorithm SHA256_RSA4096 \
 		--key key.pem \
 		--public_key_metadata pkmd.bin \
 		--output vbmeta.img \
-		--include_descriptors_from_image stock_vbmeta.img \
-		--set_hashtree_disabled_flag
+		--include_descriptors_from_image wnd-vbmeta.img
 fi
 
 step "Done!"
