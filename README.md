@@ -15,7 +15,7 @@ close-to-mainline kernel:
 To download and build all components, run:
 
 ```sh
-CROSS_COMPILE=aarch64-linux-gnu- TOOLCHAIN_PREFIX=arm-none-eabi- ./build.sh
+./build.sh
 ```
 
 You can optionally set the JOBS environment variable to the number of make jobs

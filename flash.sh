@@ -2,6 +2,10 @@
 # Author: Affe Null
 # SPDX-License-Identifier: MIT
 
+export CROSS_COMPILE=aarch64-linux-gnu-
+export TOOLCHAIN_PREFIX=arm-none-eabi-
+
+
 cd "$(dirname "$0")"
 
 if [ ! -f pkmd.bin ] || [ ! -f vbmeta.img ] || [ ! -f lk2nd.img ]; then
@@ -20,8 +24,8 @@ fastboot flash avb_custom_key pkmd.bin
 fastboot flash vbmeta vbmeta.img
 fastboot flash recovery lk2nd.img
 echo
-echo '[!] Please hold the volume-up key... Will reboot in 5 seconds...'
-sleep 5
+echo '[!] Please hold the volume-up key... Will reboot in 2 seconds...'
+sleep 2
 fastboot reboot
 sleep 3
 echo
